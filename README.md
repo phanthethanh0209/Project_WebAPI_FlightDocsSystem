@@ -18,7 +18,7 @@ FlightDocsSystem/
 │-- Authorization/       # Xác thực và phân quyền
 │-- Controllers/         # Xử lý request và trả về response cho client
 │-- DTO/                 # Data Transfer Objects
-│-- Data/                # DbContext và cấu hình EF Core
+│-- Data/                # DbContext, Models và cấu hình EF Core
 │-- Mapper/              # Cấu hình AutoMapper
 │-- Migrations/          # Lưu trữ các migration của database
 │-- Properties/          # Cấu hình dự án
