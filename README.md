@@ -32,10 +32,10 @@ FlightDocsSystem/
 ```
 
 ## 🔑 Chức năng chính
-✅ **Quản lý chuyến bay**: Tạo, đọc, cập nhật và xóa thông tin chuyến bay.
-✅ **Quản lý tài liệu chuyến bay**: Thêm, sửa, xóa, cho phép upload và download các tài liệu chuyến bay
-✅ **Quản lý người dùng**: Xác thực, phân quyền, quản lý thông tin người dùng  
-✅ **Phân quyền tài liệu**: Cho phép người dùng có quyền truy cập tài liệu theo vai trò   
+✅ **Quản lý chuyến bay**: Tạo, đọc, cập nhật và xóa thông tin chuyến bay.  
+✅ **Quản lý tài liệu chuyến bay**: Thêm, sửa, xóa, cho phép upload và download các tài liệu chuyến bay  
+✅ **Quản lý người dùng**: Xác thực, phân quyền, quản lý thông tin người dùng   
+✅ **Phân quyền tài liệu**: Cho phép người dùng có quyền truy cập tài liệu theo vai trò    
 ✅ **Xác thực & Phân quyền**: JWT Authentication, Refresh Token, Custom Authorization  
 
 ## 🔧 Hướng dẫn cài đặt
