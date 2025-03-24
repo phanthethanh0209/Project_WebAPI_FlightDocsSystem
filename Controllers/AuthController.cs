@@ -17,7 +17,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginDTO loginDTO)
         {
-            TokenDTO token = await _authService.AuthenticateAsync(loginDTO.Email, loginDTO.Password);
+            TokenDTO? token = await _authService.AuthenticateAsync(loginDTO.Email, loginDTO.Password);
 
             if (token == null)
             {
@@ -35,7 +35,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         [HttpPost("RenewToken")]
         public async Task<IActionResult> RenewToken(TokenDTO model)
         {
-            (bool success, string message, TokenDTO token) = await _authService.RenewToken(model);
+            (bool success, string? message, TokenDTO? token) = await _authService.RenewToken(model);
             if (!success)
             {
                 return BadRequest(new { Success = false, Message = message });

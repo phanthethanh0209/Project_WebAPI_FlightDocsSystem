@@ -20,7 +20,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         //[CustomAuthorize("Create")]
         public async Task<IActionResult> AddUserToRole(RoleUserDTO createDto)
         {
-            (bool Success, string ErrorMessage) result = await _roleUserService.AddUserToRole(createDto);
+            (bool Success, string? ErrorMessage) result = await _roleUserService.AddUserToRole(createDto);
 
             if (!result.Success)
             {
@@ -33,7 +33,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         //[CustomAuthorize("Delete")]
         public async Task<IActionResult> DeleteRole(int roleId, int userId)
         {
-            (bool Success, string ErrorMessage) result = await _roleUserService.DeleteRoleUser(roleId, userId);
+            (bool Success, string? ErrorMessage) result = await _roleUserService.DeleteRoleUser(roleId, userId);
             if (!result.Success)
             {
                 return BadRequest(result.ErrorMessage);
@@ -53,7 +53,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         //[CustomAuthorize("GetSingle")]
         public async Task<IActionResult> GetUserInRole(int roleId)
         {
-            IEnumerable<RoleUserDTO> role = await _roleUserService.GetUserInRole(roleId);
+            IEnumerable<RoleUserDTO>? role = await _roleUserService.GetUserInRole(roleId);
             if (role == null) return BadRequest("Not found");
 
             return Ok(role);

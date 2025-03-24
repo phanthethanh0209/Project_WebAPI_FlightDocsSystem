@@ -9,35 +9,33 @@ namespace TheThanh_WebAPI_Flight.Services
     public interface IUserService
     {
         Task<IEnumerable<UserDTO>> GetAllUser();
-        Task<UserDTO> GetUserAsync(string name);
-        Task<(bool Success, string ErrorMessage)> CreateUser(CreateUserDTO createDTO);
-        Task<(bool Success, string ErrorMessage)> UpdateUser(int id, UserDTO updateLocationDTO);
-        Task<(bool Success, string ErrorMessage)> DeleteUser(int id);
+        Task<UserDTO?> GetUserAsync(string name);
+        Task<(bool Success, string? ErrorMessage)> CreateUser(CreateUserDTO createDTO);
+        Task<(bool Success, string? ErrorMessage)> UpdateUser(int id, UserDTO updateLocationDTO);
+        Task<(bool Success, string? ErrorMessage)> DeleteUser(int id);
     }
     public class UserService : IUserService
     {
-        private readonly IRepositoryWrapper _repository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly UserValidator _createValidator;
-        public UserService(IRepositoryWrapper repository, IMapper mapper, UserValidator createValidator)
+        public UserService(IUnitOfWork unitOfWork, IMapper mapper, UserValidator createValidator)
         {
-            _repository = repository;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
             _createValidator = createValidator;
         }
 
-        public async Task<(bool Success, string ErrorMessage)> CreateUser(CreateUserDTO createDTO)
+        public async Task<(bool Success, string? ErrorMessage)> CreateUser(CreateUserDTO createDTO)
         {
             // Kiểm tra location name duy nhất
-            bool isEmailUnique = await _repository.User.AnyAsync(m => m.Email == createDTO.Email);
+            bool isEmailUnique = await _unitOfWork.User.AnyAsync(m => m.Email == createDTO.Email);
             if (isEmailUnique)
             {
                 return (false, "Email already exists");
             }
 
-
             FluentValidation.Results.ValidationResult validationResult = await _createValidator.ValidateAsync(createDTO);
-
             if (!validationResult.IsValid)
                 return (false, validationResult.Errors.First().ErrorMessage);
 
@@ -46,30 +44,32 @@ namespace TheThanh_WebAPI_Flight.Services
             // Hash the password before saving it to the database
             newUser.Password = BCrypt.Net.BCrypt.HashPassword(createDTO.Password);
 
-            await _repository.User.CreateAsync(newUser);
+            await _unitOfWork.User.CreateAsync(newUser);
+            await _unitOfWork.SaveChangeAsync();
             return (true, null);
         }
 
-        public async Task<(bool Success, string ErrorMessage)> DeleteUser(int id)
+        public async Task<(bool Success, string? ErrorMessage)> DeleteUser(int id)
         {
-            User user = await _repository.User.GetByIdAsync(u => u.UserID == id);
+            User? user = await _unitOfWork.User.GetByIdAsync(u => u.UserID == id);
             if (user == null)
                 return (false, "User not found.");
 
-            await _repository.User.DeleteAsync(user);
+            _unitOfWork.User.Delete(user);
+            await _unitOfWork.SaveChangeAsync();
             return (true, null);
         }
 
         public async Task<IEnumerable<UserDTO>> GetAllUser()
         {
-            IEnumerable<User> user = await _repository.User.GetAllAsync();
+            IEnumerable<User> user = await _unitOfWork.User.GetAllAsync();
             return _mapper.Map<IEnumerable<UserDTO>>(user);
 
         }
 
-        public async Task<UserDTO> GetUserAsync(string username)
+        public async Task<UserDTO?> GetUserAsync(string username)
         {
-            User user = await _repository.User.GetByIdAsync(x => x.UserName == username);
+            User? user = await _unitOfWork.User.GetByIdAsync(x => x.UserName == username);
             if (user == null)
             {
                 return null;
@@ -79,16 +79,23 @@ namespace TheThanh_WebAPI_Flight.Services
 
 
 
-        public async Task<(bool Success, string ErrorMessage)> UpdateUser(int id, UserDTO updateUserDTO)
+        public async Task<(bool Success, string? ErrorMessage)> UpdateUser(int id, UserDTO updateUserDTO)
         {
-            User user = await _repository.User.GetByIdAsync(m => m.UserID == id);
+            User? user = await _unitOfWork.User.GetByIdAsync(m => m.UserID == id);
             if (user == null)
             {
                 return (false, "User not found");
             }
 
+            //FluentValidation.Results.ValidationResult validationResult = await _createValidator.ValidateAsync(updateUserDTO);
+
+            //if (!validationResult.IsValid)
+            //    return (false, validationResult.Errors.First().ErrorMessage);
+
             _mapper.Map(updateUserDTO, user);
-            await _repository.User.UpdateAsync(user);
+            _unitOfWork.User.Update(user);
+            await _unitOfWork.SaveChangeAsync();
+
             return (true, null);
         }
     }

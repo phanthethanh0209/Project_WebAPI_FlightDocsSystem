@@ -38,7 +38,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         [HttpGet("{DocID}")]
         public async Task<IActionResult> GetByDocID(int docID)
         {
-            DocumentDTO doc = await _docService.GetDocByID(docID);
+            DocumentDTO? doc = await _docService.GetDocByID(docID);
             if (doc == null) return BadRequest("Not found");
 
             return Ok(doc);
@@ -55,7 +55,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateDocument([FromForm] CreateDocumentDTO createDto)
         {
-            (bool Success, string ErrorMessage) result = await _docService.CreateDocument(createDto);
+            (bool Success, string? ErrorMessage) result = await _docService.CreateDocument(createDto);
 
             if (!result.Success)
             {
@@ -70,7 +70,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         public async Task<IActionResult> Download(int DocID)
         {
             // Gọi phương thức DownloadFile từ service để lấy dữ liệu file
-            (byte[] fileData, string contentType, string originalFileName) = await _docService.DownloadFile(DocID);
+            (byte[] fileData, string contentType, string? originalFileName) = await _docService.DownloadFile(DocID);
 
             // Trả về file dưới dạng response HTTP
             return File(fileData, contentType, originalFileName);
@@ -115,7 +115,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         [HttpDelete("{DocID}")]
         public async Task<IActionResult> DeleteDocument(int docID)
         {
-            (bool Success, string ErrorMessage) result = await _docService.DeleteDocument(docID);
+            (bool Success, string? ErrorMessage) result = await _docService.DeleteDocument(docID);
             if (!result.Success)
             {
                 return BadRequest(result.ErrorMessage);

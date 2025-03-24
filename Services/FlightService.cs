@@ -9,25 +9,25 @@ namespace TheThanh_WebAPI_Flight.Services
     {
         //Task<IEnumerable<FlightDTO>> GetAllFLight(int page = 1);
         Task<IEnumerable<FlightResponse>> GetAllFLight(int page = 1);
-        Task<FlightDTO> GetFLight(string name);
-        Task<(bool Success, string ErrorMessage)> CreateFlight(CreateFlightDTO createDTO);
-        Task<(bool Success, string ErrorMessage)> UpdateFlight(int id, CreateFlightDTO updateFlightDTO);
-        Task<(bool Success, string ErrorMessage)> DeleteFlight(int id);
+        Task<FlightDTO?> GetFLight(string name);
+        Task<(bool Success, string? ErrorMessage)> CreateFlight(CreateFlightDTO createDTO);
+        Task<(bool Success, string? ErrorMessage)> UpdateFlight(int id, CreateFlightDTO updateFlightDTO);
+        Task<(bool Success, string? ErrorMessage)> DeleteFlight(int id);
 
     }
     public class FlightService : IFlightService
     {
-        private readonly IRepositoryWrapper _repository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         //public static int PAGE_SIZE { get; set; } = 3;
 
-        public FlightService(IRepositoryWrapper repository, IMapper mapper)
+        public FlightService(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _repository = repository;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
-        public async Task<(bool Success, string ErrorMessage)> CreateFlight(CreateFlightDTO createDTO)
+        public async Task<(bool Success, string? ErrorMessage)> CreateFlight(CreateFlightDTO createDTO)
         {
             //FluentValidation.Results.ValidationResult validationResult = await _createValidator.ValidateAsync(createDTO);
 
@@ -38,7 +38,8 @@ namespace TheThanh_WebAPI_Flight.Services
             Flight newFlight = _mapper.Map<Flight>(createDTO);
             newFlight.FlightNo = flightNo;
 
-            await _repository.Flight.CreateAsync(newFlight);
+            await _unitOfWork.Flight.CreateAsync(newFlight);
+            await _unitOfWork.SaveChangeAsync();
             return (true, null);
         }
 
@@ -47,7 +48,7 @@ namespace TheThanh_WebAPI_Flight.Services
         {
             string newFlightNo = "VJ";
             // Lấy FlightNo lớn nhất
-            Flight? lastFlight = (await _repository.Flight.GetAllAsync()).FirstOrDefault();
+            Flight? lastFlight = (await _unitOfWork.Flight.GetAllAsync()).FirstOrDefault();
 
             if ((lastFlight == null))
             {
@@ -71,26 +72,29 @@ namespace TheThanh_WebAPI_Flight.Services
             return newFlightNo;
         }
 
-        public async Task<(bool Success, string ErrorMessage)> UpdateFlight(int flightID, CreateFlightDTO updateFlightDTO)
+        public async Task<(bool Success, string? ErrorMessage)> UpdateFlight(int flightID, CreateFlightDTO updateFlightDTO)
         {
-            Flight flight = await _repository.Flight.GetByIdAsync(m => m.FlightID == flightID);
+            Flight? flight = await _unitOfWork.Flight.GetByIdAsync(m => m.FlightID == flightID);
             if (flight == null)
             {
                 return (false, "Flight not found");
             }
 
             _mapper.Map(updateFlightDTO, flight);
-            await _repository.Flight.UpdateAsync(flight);
+            _unitOfWork.Flight.Update(flight);
+            await _unitOfWork.SaveChangeAsync();
+
             return (true, null);
         }
 
-        public async Task<(bool Success, string ErrorMessage)> DeleteFlight(int id)
+        public async Task<(bool Success, string? ErrorMessage)> DeleteFlight(int id)
         {
-            Flight flight = await _repository.Flight.GetByIdAsync(u => u.FlightID == id);
+            Flight? flight = await _unitOfWork.Flight.GetByIdAsync(u => u.FlightID == id);
             if (flight == null)
                 return (false, "Flight not found.");
 
-            await _repository.Flight.DeleteAsync(flight);
+            _unitOfWork.Flight.Delete(flight);
+            await _unitOfWork.SaveChangeAsync();
             return (true, null);
         }
 
@@ -108,7 +112,7 @@ namespace TheThanh_WebAPI_Flight.Services
         public async Task<IEnumerable<FlightResponse>> GetAllFLight(int pageNumber)
         {
             // Lấy danh sách Flight cùng với Documents
-            IEnumerable<Flight> flights = await _repository.Flight
+            IEnumerable<Flight> flights = await _unitOfWork.Flight
                 .GetAllWithPaginationAsync(null, pageNumber, 3, f => f.Documents);
 
             // Lấy tất cả các TypeID, userID trong từng document 
@@ -123,10 +127,10 @@ namespace TheThanh_WebAPI_Flight.Services
                                         .ToList();
 
             // Lấy DocumentTypes cho list TypeID trên
-            IEnumerable<DocumentType> documentTypes = await _repository.DocumentType
+            IEnumerable<DocumentType> documentTypes = await _unitOfWork.DocumentType
                 .GetAllAsync(dt => typeIds.Contains(dt.TypeID));
 
-            IEnumerable<User> users = await _repository.User
+            IEnumerable<User> users = await _unitOfWork.User
                 .GetAllAsync(dt => userIds.Contains(dt.UserID));
 
             // Chuyển đổi DocumentTypes để dễ dàng tra cứu
@@ -156,9 +160,9 @@ namespace TheThanh_WebAPI_Flight.Services
 
 
 
-        public async Task<FlightDTO> GetFLight(string flightNo)
+        public async Task<FlightDTO?> GetFLight(string flightNo)
         {
-            Flight flight = await _repository.Flight.GetByIdAsync(x => x.FlightNo == flightNo);
+            Flight? flight = await _unitOfWork.Flight.GetByIdAsync(x => x.FlightNo == flightNo);
             if (flight == null)
             {
                 return null;

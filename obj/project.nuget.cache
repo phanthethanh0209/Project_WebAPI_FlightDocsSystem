@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "DTHGqB0xVF8=",
+  "dgSpecHash": "6HBrc3PcdB0=",
   "success": true,
-  "projectFilePath": "D:\\Thực tập Back-end\\Project_Flight\\TheThanh_WebAPI_Flight\\TheThanh_WebAPI_Flight.csproj",
+  "projectFilePath": "D:\\Thực tập Back-end\\Project_Flight\\upgithub\\Project_WebAPI_FlightDocsSystem\\TheThanh_WebAPI_Flight.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ASUS\\.nuget\\packages\\automapper\\12.0.0\\automapper.12.0.0.nupkg.sha512",
     "C:\\Users\\ASUS\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.0\\automapper.extensions.microsoft.dependencyinjection.12.0.0.nupkg.sha512",

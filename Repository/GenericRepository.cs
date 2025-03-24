@@ -4,23 +4,23 @@ using TheThanh_WebAPI_Flight.Data;
 
 namespace TheThanh_WebAPI_Flight.Repository
 {
-    public interface IRepositoryBase<T> where T : class
+    public interface IGenericRepository<T> where T : class
     {
-        Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> expression = null);
-        Task<IEnumerable<T>> GetAllWithPaginationAsync(Expression<Func<T, bool>> expression = null, int pageNumber = 1, int pageSize = 3, params Expression<Func<T, object>>[] includes);
-        Task<T?> GetByIdAsync(Expression<Func<T, bool>> expression = null, params Expression<Func<T, object>>[] includes);
+        Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? expression = null);
+        Task<IEnumerable<T>> GetAllWithPaginationAsync(Expression<Func<T, bool>>? expression = null, int pageNumber = 1, int pageSize = 3, params Expression<Func<T, object>>[] includes);
+        Task<T?> GetByIdAsync(Expression<Func<T, bool>>? expression = null, params Expression<Func<T, object>>[] includes);
         Task CreateAsync(T entity);
-        Task UpdateAsync(T entity);
-        Task DeleteAsync(T entity);
-        Task<bool> AnyAsync(Expression<Func<T, bool>> expression = null);
+        void Update(T entity);
+        void Delete(T entity);
+        Task<bool> AnyAsync(Expression<Func<T, bool>>? expression = null);
     }
 
-    public class RepositoryBase<T> : IRepositoryBase<T> where T : class
+    public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         private readonly MyDBContext _context;
         private readonly DbSet<T> _dbSet;
 
-        public RepositoryBase(MyDBContext context)
+        public GenericRepository(MyDBContext context)
         {
             _context = context;
             _dbSet = context.Set<T>();
@@ -48,7 +48,7 @@ namespace TheThanh_WebAPI_Flight.Repository
         //    return await query.ToListAsync();
         //}
 
-        public async Task<IEnumerable<T>> GetAllWithPaginationAsync(Expression<Func<T, bool>> expression = null, int pageNumber = 1, int pageSize = 3, params Expression<Func<T, object>>[] includes)
+        public async Task<IEnumerable<T>> GetAllWithPaginationAsync(Expression<Func<T, bool>>? expression = null, int pageNumber = 1, int pageSize = 3, params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = _dbSet;
 
@@ -82,7 +82,7 @@ namespace TheThanh_WebAPI_Flight.Repository
         }
 
 
-        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> expression = null)
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? expression = null)
         {
             IQueryable<T> query = _dbSet;
 
@@ -100,7 +100,7 @@ namespace TheThanh_WebAPI_Flight.Repository
         }
 
 
-        public async Task<T?> GetByIdAsync(Expression<Func<T, bool>> expression = null, params Expression<Func<T, object>>[] includes)
+        public async Task<T?> GetByIdAsync(Expression<Func<T, bool>>? expression = null, params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = _dbSet;
 
@@ -124,22 +124,19 @@ namespace TheThanh_WebAPI_Flight.Repository
         public async Task CreateAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
-            await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(T entity)
+        public void Update(T entity)
         {
             _dbSet.Update(entity);
-            await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(T entity)
+        public void Delete(T entity)
         {
             _dbSet.Remove(entity);
-            await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> AnyAsync(Expression<Func<T, bool>> expression = null)
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>>? expression = null)
         {
             if (expression == null)
             {

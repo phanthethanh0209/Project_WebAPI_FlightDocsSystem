@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TheThanh_WebAPI_Flight")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7a3040719c0b659fa2c04a2fd9c3301964399b33")]
 [assembly: System.Reflection.AssemblyProductAttribute("TheThanh_WebAPI_Flight")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TheThanh_WebAPI_Flight")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Thực tập Back-end\\Project_Flight\\TheThanh_WebAPI_Flight\\TheThanh_WebAPI_Flight.csproj": {}
+    "D:\\Thực tập Back-end\\Project_Flight\\upgithub\\Project_WebAPI_FlightDocsSystem\\TheThanh_WebAPI_Flight.csproj": {}
   },
   "projects": {
-    "D:\\Thực tập Back-end\\Project_Flight\\TheThanh_WebAPI_Flight\\TheThanh_WebAPI_Flight.csproj": {
+    "D:\\Thực tập Back-end\\Project_Flight\\upgithub\\Project_WebAPI_FlightDocsSystem\\TheThanh_WebAPI_Flight.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Thực tập Back-end\\Project_Flight\\TheThanh_WebAPI_Flight\\TheThanh_WebAPI_Flight.csproj",
+        "projectUniqueName": "D:\\Thực tập Back-end\\Project_Flight\\upgithub\\Project_WebAPI_FlightDocsSystem\\TheThanh_WebAPI_Flight.csproj",
         "projectName": "TheThanh_WebAPI_Flight",
-        "projectPath": "D:\\Thực tập Back-end\\Project_Flight\\TheThanh_WebAPI_Flight\\TheThanh_WebAPI_Flight.csproj",
+        "projectPath": "D:\\Thực tập Back-end\\Project_Flight\\upgithub\\Project_WebAPI_FlightDocsSystem\\TheThanh_WebAPI_Flight.csproj",
         "packagesPath": "C:\\Users\\ASUS\\.nuget\\packages\\",
-        "outputPath": "D:\\Thực tập Back-end\\Project_Flight\\TheThanh_WebAPI_Flight\\obj\\",
+        "outputPath": "D:\\Thực tập Back-end\\Project_Flight\\upgithub\\Project_WebAPI_FlightDocsSystem\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ASUS\\AppData\\Roaming\\NuGet\\NuGet.Config",

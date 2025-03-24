@@ -27,7 +27,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         [HttpGet("{FlightNo}")]
         public async Task<IActionResult> GetByFlightNo(string flightNo)
         {
-            FlightDTO flight = await _flightService.GetFLight(flightNo);
+            FlightDTO? flight = await _flightService.GetFLight(flightNo);
             if (flight == null) return BadRequest("Not found");
 
             return Ok(flight);
@@ -37,7 +37,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateFlight(CreateFlightDTO createDto)
         {
-            (bool Success, string ErrorMessage) result = await _flightService.CreateFlight(createDto);
+            (bool Success, string? ErrorMessage) result = await _flightService.CreateFlight(createDto);
 
             if (!result.Success)
             {
@@ -50,7 +50,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         [HttpPut("{FlightID}")]
         public async Task<IActionResult> UpdateFlight(int flightID, CreateFlightDTO updateDto)
         {
-            (bool Success, string ErrorMessage) result = await _flightService.UpdateFlight(flightID, updateDto);
+            (bool Success, string? ErrorMessage) result = await _flightService.UpdateFlight(flightID, updateDto);
 
             if (!result.Success)
             {
@@ -64,7 +64,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         [HttpDelete("{FlightID}")]
         public async Task<IActionResult> DeleteFlight(int flightID)
         {
-            (bool Success, string ErrorMessage) result = await _flightService.DeleteFlight(flightID);
+            (bool Success, string? ErrorMessage) result = await _flightService.DeleteFlight(flightID);
             if (!result.Success)
             {
                 return BadRequest(result.ErrorMessage);

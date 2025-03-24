@@ -10,11 +10,11 @@ namespace TheThanh_WebAPI_Flight.Services
 {
     public interface IDocumentService
     {
-        Task<IEnumerable<DocumentDTO>> GetAllDocument(int page = 1);
-        Task<DocumentDTO> GetDocByID(int docID);
-        Task<IEnumerable<DocumentDTO>> GetAllDocByTypeID(int typeId, int pageNumber);
-        Task<IEnumerable<DocumentDTO>> GetAllDocByName(string docName, int pageNumber);
-        Task<(bool Success, string ErrorMessage)> CreateDocument(CreateDocumentDTO createDTO);
+        Task<IEnumerable<DocumentDTO>?> GetAllDocument(int page = 1);
+        Task<DocumentDTO?> GetDocByID(int docID);
+        Task<IEnumerable<DocumentDTO>?> GetAllDocByTypeID(int typeId, int pageNumber);
+        Task<IEnumerable<DocumentDTO>?> GetAllDocByName(string docName, int pageNumber);
+        Task<(bool Success, string? ErrorMessage)> CreateDocument(CreateDocumentDTO createDTO);
 
         // download
         Task<(byte[] FileData, string ContentType, string FileName)> DownloadFile(int docID);
@@ -22,24 +22,24 @@ namespace TheThanh_WebAPI_Flight.Services
         Task<(byte[] FileData, string ContentType, string FileName)> DownloadFilesByDocName(string docName, int pageNumber);
 
         //Task<(bool Success, string ErrorMessage)> UpdateFlight(int id, CreateFlightDTO updateFlightDTO);
-        Task<(bool Success, string ErrorMessage)> DeleteDocument(int id);
+        Task<(bool Success, string? ErrorMessage)> DeleteDocument(int id);
     }
 
     public class DocumentService : IDocumentService
     {
-        private readonly IRepositoryWrapper _repository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
 
-        public DocumentService(IRepositoryWrapper repository, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        public DocumentService(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
-            _repository = repository;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<(bool Success, string ErrorMessage)> CreateDocument(CreateDocumentDTO createDTO)
+        public async Task<(bool Success, string? ErrorMessage)> CreateDocument(CreateDocumentDTO createDTO)
         {
             Document newDoc = _mapper.Map<Document>(createDTO);
             // Lấy HttpContext và kiểm tra nếu người dùng đã đăng nhập
@@ -61,7 +61,7 @@ namespace TheThanh_WebAPI_Flight.Services
                 return (false, "User is not authenticated.");
             }
 
-            Flight flight = await _repository.Flight.GetByIdAsync(u => u.FlightID == createDTO.FlightID);
+            Flight? flight = await _unitOfWork.Flight.GetByIdAsync(u => u.FlightID == createDTO.FlightID);
             if (flight == null)
             {
                 return (false, "flight has not been created yet");
@@ -75,7 +75,8 @@ namespace TheThanh_WebAPI_Flight.Services
 
             newDoc.DocName = fileResult;
 
-            await _repository.Document.CreateAsync(newDoc);
+            await _unitOfWork.Document.CreateAsync(newDoc);
+            await _unitOfWork.SaveChangeAsync();
             return (true, null);
         }
         private async Task<string> WriteFile(IFormFile file, string flightID)
@@ -108,10 +109,10 @@ namespace TheThanh_WebAPI_Flight.Services
 
         public async Task<(byte[] FileData, string ContentType, string FileName)> DownloadFile(int docID)
         {
-            Document doc = await _repository.Document.GetByIdAsync(u => u.DocID == docID);
+            Document doc = await _unitOfWork.Document.GetByIdAsync(u => u.DocID == docID);
 
             // Lấy chuyến bay tương ứng với tài liệu này
-            Flight flight = await _repository.Flight.GetByIdAsync(f => f.FlightID == doc.FlightID);
+            Flight flight = await _unitOfWork.Flight.GetByIdAsync(f => f.FlightID == doc.FlightID);
 
             string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Files", flight.FlightNo, doc.DocName);
 
@@ -131,10 +132,10 @@ namespace TheThanh_WebAPI_Flight.Services
 
         public async Task<(byte[] FileData, string ContentType, string FileName)> DownloadFilesByFlightID(int flightId)
         {
-            IEnumerable<Document> documents = await _repository.Document.GetAllAsync(f => f.FlightID == flightId);
+            IEnumerable<Document> documents = await _unitOfWork.Document.GetAllAsync(f => f.FlightID == flightId);
 
             // Lấy chuyến bay tương ứng với tài liệu
-            Flight flight = await _repository.Flight.GetByIdAsync(f => f.FlightID == flightId);
+            Flight? flight = await _unitOfWork.Flight.GetByIdAsync(f => f.FlightID == flightId);
             if (flight == null)
             {
                 throw new Exception("Flight not found.");
@@ -180,7 +181,7 @@ namespace TheThanh_WebAPI_Flight.Services
         public async Task<(byte[] FileData, string ContentType, string FileName)> DownloadFilesByDocName(string docName, int pageNumber)
         {
             // Tìm kiếm các tài liệu theo tên với phân trang
-            IEnumerable<Document> documents = await _repository.Document.GetAllWithPaginationAsync(
+            IEnumerable<Document> documents = await _unitOfWork.Document.GetAllWithPaginationAsync(
                 x => x.DocName.Contains(docName),
                 pageNumber,
                 3
@@ -201,7 +202,7 @@ namespace TheThanh_WebAPI_Flight.Services
                 foreach (Document document in documents)
                 {
                     // Lấy chuyến bay đầu tiên tương ứng với tài liệu này (giả sử tất cả tài liệu cùng chuyến bay)
-                    Flight flight = await _repository.Flight.GetByIdAsync(f => f.FlightID == document.FlightID);
+                    Flight flight = await _unitOfWork.Flight.GetByIdAsync(f => f.FlightID == document.FlightID);
                     string filePath = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Files", flight.FlightNo, document.DocName);
 
                     if (File.Exists(filePath))
@@ -227,26 +228,28 @@ namespace TheThanh_WebAPI_Flight.Services
         }
 
 
-        public async Task<IEnumerable<DocumentDTO>> GetAllDocument(int pageNumber)
+        public async Task<IEnumerable<DocumentDTO>?> GetAllDocument(int pageNumber)
         {
-            IEnumerable<Document> documents = await _repository.Document.GetAllWithPaginationAsync(null, pageNumber, 3, doc => doc.Flights, doc => doc.DocumentTypes, u => u.Users);
+            IEnumerable<Document> documents = await _unitOfWork.Document.GetAllWithPaginationAsync(null, pageNumber, 3, doc => doc.Flights, doc => doc.DocumentTypes, u => u.Users);
 
             return _mapper.Map<IEnumerable<DocumentDTO>>(documents);
         }
 
-        public async Task<(bool Success, string ErrorMessage)> DeleteDocument(int id)
+        public async Task<(bool Success, string? ErrorMessage)> DeleteDocument(int id)
         {
-            Document document = await _repository.Document.GetByIdAsync(u => u.DocID == id);
+            Document? document = await _unitOfWork.Document.GetByIdAsync(u => u.DocID == id);
             if (document == null)
                 return (false, "Document not found.");
 
-            await _repository.Document.DeleteAsync(document);
+            _unitOfWork.Document.Delete(document);
+            await _unitOfWork.SaveChangeAsync();
+
             return (true, null);
         }
 
-        public async Task<DocumentDTO> GetDocByID(int docID)
+        public async Task<DocumentDTO?> GetDocByID(int docID)
         {
-            Document doc = await _repository.Document.GetByIdAsync(x => x.DocID == docID, doc => doc.Flights, doc => doc.DocumentTypes, u => u.Users);
+            Document? doc = await _unitOfWork.Document.GetByIdAsync(x => x.DocID == docID, doc => doc.Flights, doc => doc.DocumentTypes, u => u.Users);
             if (doc == null)
             {
                 return null;
@@ -254,9 +257,9 @@ namespace TheThanh_WebAPI_Flight.Services
             return _mapper.Map<DocumentDTO>(doc);
         }
 
-        public async Task<IEnumerable<DocumentDTO>> GetAllDocByName(string docName, int pageNumber)
+        public async Task<IEnumerable<DocumentDTO>?> GetAllDocByName(string docName, int pageNumber)
         {
-            IEnumerable<Document> doc = await _repository.Document.GetAllWithPaginationAsync(x => x.DocName.Contains(docName), pageNumber, 3, doc => doc.Flights, doc => doc.DocumentTypes, u => u.Users);
+            IEnumerable<Document> doc = await _unitOfWork.Document.GetAllWithPaginationAsync(x => x.DocName.Contains(docName), pageNumber, 3, doc => doc.Flights, doc => doc.DocumentTypes, u => u.Users);
             if (doc == null)
             {
                 return null;
@@ -264,9 +267,9 @@ namespace TheThanh_WebAPI_Flight.Services
             return _mapper.Map<IEnumerable<DocumentDTO>>(doc);
         }
 
-        public async Task<IEnumerable<DocumentDTO>> GetAllDocByTypeID(int typeId, int pageNumber)
+        public async Task<IEnumerable<DocumentDTO>?> GetAllDocByTypeID(int typeId, int pageNumber)
         {
-            IEnumerable<Document> doc = await _repository.Document.GetAllWithPaginationAsync(x => x.TypeID == typeId, pageNumber, 3, doc => doc.Flights, doc => doc.DocumentTypes, u => u.Users);
+            IEnumerable<Document> doc = await _unitOfWork.Document.GetAllWithPaginationAsync(x => x.TypeID == typeId, pageNumber, 3, doc => doc.Flights, doc => doc.DocumentTypes, u => u.Users);
             if (doc == null)
             {
                 return null;

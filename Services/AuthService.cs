@@ -13,9 +13,9 @@ namespace TheThanh_WebAPI_Flight.Services
 {
     public interface IAuthService
     {
-        Task<TokenDTO> AuthenticateAsync(string email, string password);
+        Task<TokenDTO?> AuthenticateAsync(string email, string password);
         Task<TokenDTO> GenerateToken(User user);
-        Task<(bool Success, string ErrorMessage, TokenDTO Token)> RenewToken(TokenDTO token);
+        Task<(bool Success, string? ErrorMessage, TokenDTO? Token)> RenewToken(TokenDTO token);
         public string GenerateRefreshToken();
     }
 
@@ -24,21 +24,21 @@ namespace TheThanh_WebAPI_Flight.Services
         private readonly MyDBContext _context;
         private readonly IConfiguration _configuration;
         private readonly AuthValidator _authValidator;
-        private readonly IRepositoryWrapper _repository;
+        private readonly IUnitOfWork _unitOfWork;
 
 
-        public AuthService(MyDBContext context, IConfiguration configuration, AuthValidator authValidator, IRepositoryWrapper repository)
+        public AuthService(MyDBContext context, IConfiguration configuration, AuthValidator authValidator, IUnitOfWork unitOfWork)
         {
             _context = context;
             _configuration = configuration;
             _authValidator = authValidator;
-            _repository = repository;
+            _unitOfWork = unitOfWork;
         }
 
-        public async Task<TokenDTO> AuthenticateAsync(string email, string password)
+        public async Task<TokenDTO?> AuthenticateAsync(string email, string password)
         {
             // Tìm người dùng với email và mật khẩu 
-            User user = await _context.Users.SingleOrDefaultAsync(u => u.Email == email);
+            User? user = await _context.Users.SingleOrDefaultAsync(u => u.Email == email);
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
             {
@@ -103,8 +103,8 @@ namespace TheThanh_WebAPI_Flight.Services
                 ExpiredAt = DateTime.UtcNow.AddHours(1),
             };
 
-            await _repository.RefreshToken.CreateAsync(refreshTokenEntity);
-            await _repository.SaveChangeAsync();
+            await _unitOfWork.RefreshToken.CreateAsync(refreshTokenEntity);
+            await _unitOfWork.SaveChangeAsync();
 
             return new TokenDTO
             {
@@ -113,7 +113,7 @@ namespace TheThanh_WebAPI_Flight.Services
             };
         }
 
-        public async Task<(bool Success, string ErrorMessage, TokenDTO Token)> RenewToken(TokenDTO model)
+        public async Task<(bool Success, string? ErrorMessage, TokenDTO? Token)> RenewToken(TokenDTO model)
         {
             JwtSecurityTokenHandler tokenHandler = new();
             IConfigurationSection jwtSettings = _configuration.GetSection("Jwt");
@@ -141,6 +141,8 @@ namespace TheThanh_WebAPI_Flight.Services
 
             RefreshToken? storedToken = await _context.RefreshTokens
                     .FirstOrDefaultAsync(x => x.Token == model.RefreshToken);
+
+            if (storedToken == null) return (false, "Refresh Token not found", null);
             // Cập nhật trạng thái của Refresh Token
             storedToken.IsRevoked = true; // đánh dấu token đã đc sử dụng
             storedToken.IsUsed = true; // đánh dấu token đã bị thu hồi
@@ -149,6 +151,8 @@ namespace TheThanh_WebAPI_Flight.Services
 
             // Lấy người dùng từ cơ sở dữ liệu dựa trên UserId của storedToken để tạo token mới cho người dùng.
             User? user = await _context.Users.SingleOrDefaultAsync(t => t.UserID == storedToken.UserId);
+
+            if (user == null) return (false, "User not found", null);
             TokenDTO token = await GenerateToken(user);
 
             return (true, null, token);

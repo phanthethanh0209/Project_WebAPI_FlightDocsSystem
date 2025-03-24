@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using TheThanh_WebAPI_Flight.Authorization;
@@ -26,7 +27,29 @@ namespace TheThanh_WebAPI_Flight
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                OpenApiSecurityScheme jwtSecurityScheme = new()
+                {
+                    BearerFormat = "JWT",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = JwtBearerDefaults.AuthenticationScheme,
+                    Description = "Enter your JWT Access Token",
+                    Reference = new OpenApiReference
+                    {
+                        Id = JwtBearerDefaults.AuthenticationScheme,
+                        Type = ReferenceType.SecurityScheme
+                    }
+                };
+
+                options.AddSecurityDefinition("Bearer", jwtSecurityScheme);
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {jwtSecurityScheme, Array.Empty<String>() }
+                });
+            });
 
             // kiem tra va xac thuc token nguoi dung
             string secretKey = builder.Configuration["Jwt:Key"]; // Doc cau hinh tu appsettings.json
@@ -57,7 +80,7 @@ namespace TheThanh_WebAPI_Flight
 
 
             // Dang ky interface respository
-            builder.Services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // Dang ky interface Services
             builder.Services.AddScoped<IUserService, UserService>();

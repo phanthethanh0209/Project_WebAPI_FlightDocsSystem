@@ -27,7 +27,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         [HttpGet("{TypeId}")]
         public async Task<IActionResult> GetDocumentType(int typeId)
         {
-            CreateDocTypeDTO type = await _documentTypeService.GetDocumentType(typeId);
+            CreateDocTypeDTO? type = await _documentTypeService.GetDocumentType(typeId);
             if (type == null) return BadRequest("Not found");
 
             return Ok(type);
@@ -37,7 +37,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateDocType(CreateDocTypeDTO createDto)
         {
-            (bool Success, string ErrorMessage) result = await _documentTypeService.CreateDocumentType(createDto);
+            (bool Success, string? ErrorMessage) result = await _documentTypeService.CreateDocumentType(createDto);
 
             if (!result.Success)
             {
@@ -50,7 +50,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         [HttpPut("{TypeId}")]
         public async Task<IActionResult> UpdateDocType(int typeId, CreateDocTypeDTO updateDto)
         {
-            (bool Success, string ErrorMessage) result = await _documentTypeService.UpdateDocumentType(typeId, updateDto);
+            (bool Success, string? ErrorMessage) result = await _documentTypeService.UpdateDocumentType(typeId, updateDto);
 
             if (!result.Success)
             {
@@ -64,7 +64,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         [HttpDelete("{TypeId}")]
         public async Task<IActionResult> DeleteDocType(int typeId)
         {
-            (bool Success, string ErrorMessage) result = await _documentTypeService.DeleteDocumentType(typeId);
+            (bool Success, string? ErrorMessage) result = await _documentTypeService.DeleteDocumentType(typeId);
             if (!result.Success)
             {
                 return BadRequest(result.ErrorMessage);

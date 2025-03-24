@@ -20,7 +20,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         //[CustomAuthorize("Create")]
         public async Task<IActionResult> AddPerrmissionToRole(RolePermissionDTO createDto)
         {
-            (bool Success, string ErrorMessage) result = await _rolePermissionService.AddPermissionToRole(createDto);
+            (bool Success, string? ErrorMessage) result = await _rolePermissionService.AddPermissionToRole(createDto);
 
             if (!result.Success)
             {
@@ -33,7 +33,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         //[CustomAuthorize("Delete")]
         public async Task<IActionResult> DeleteRolePerrmission(int roleId, int permissionId)
         {
-            (bool Success, string ErrorMessage) result = await _rolePermissionService.DeleteRolePermission(roleId, permissionId);
+            (bool Success, string? ErrorMessage) result = await _rolePermissionService.DeleteRolePermission(roleId, permissionId);
             if (!result.Success)
             {
                 return BadRequest(result.ErrorMessage);
@@ -51,9 +51,9 @@ namespace TheThanh_WebAPI_Flight.Controllers
 
         [HttpGet("{RoleID}")]
         //[CustomAuthorize("GetSingle")]
-        public async Task<IActionResult> GetPerrmissionInRole(int roleId)
+        public async Task<IActionResult> GetPermissionInRole(int roleId)
         {
-            IEnumerable<RolePermissionDTO> role = await _rolePermissionService.GetPerrmissionInRole(roleId);
+            IEnumerable<RolePermissionDTO>? role = await _rolePermissionService.GetPermissionInRole(roleId);
             if (role == null) return BadRequest("Not found");
 
             return Ok(role);

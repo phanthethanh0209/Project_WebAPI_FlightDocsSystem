@@ -19,7 +19,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         //[CustomAuthorize("Create")]
         public async Task<IActionResult> CreateRole(RoleDTO createDto)
         {
-            (bool Success, string ErrorMessage) result = await _roleService.CreateRole(createDto);
+            (bool Success, string? ErrorMessage) result = await _roleService.CreateRole(createDto);
 
             if (!result.Success)
             {
@@ -32,7 +32,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         //[CustomAuthorize("Update")]
         public async Task<IActionResult> UpdateRole(int roleId, RoleDTO updateDto)
         {
-            (bool Success, string ErrorMessage) result = await _roleService.UpdateRole(roleId, updateDto);
+            (bool Success, string? ErrorMessage) result = await _roleService.UpdateRole(roleId, updateDto);
 
             if (!result.Success)
             {
@@ -46,7 +46,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         //[CustomAuthorize("Delete")]
         public async Task<IActionResult> DeleteRole(int roleId)
         {
-            (bool Success, string ErrorMessage) result = await _roleService.DeleteRole(roleId);
+            (bool Success, string? ErrorMessage) result = await _roleService.DeleteRole(roleId);
             if (!result.Success)
             {
                 return BadRequest(result.ErrorMessage);
@@ -66,7 +66,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         //[CustomAuthorize("GetSingle")]
         public async Task<IActionResult> GetByIdRole(int roleId)
         {
-            RoleDTO role = await _roleService.GetRole(roleId);
+            RoleDTO? role = await _roleService.GetRole(roleId);
             if (role == null) return BadRequest("Not found");
 
             return Ok(role);

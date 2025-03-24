@@ -24,7 +24,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         [HttpGet("{UserName}")]
         public async Task<IActionResult> GetByNameUser(string username)
         {
-            UserDTO user = await _userService.GetUserAsync(username);
+            UserDTO? user = await _userService.GetUserAsync(username);
             if (user == null) return BadRequest("Not found");
 
             return Ok(user);
@@ -33,7 +33,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser(CreateUserDTO createDto)
         {
-            (bool Success, string ErrorMessage) result = await _userService.CreateUser(createDto);
+            (bool Success, string? ErrorMessage) result = await _userService.CreateUser(createDto);
 
             if (!result.Success)
             {
@@ -43,9 +43,9 @@ namespace TheThanh_WebAPI_Flight.Controllers
         }
 
         [HttpPut("{UserID}")]
-        public async Task<IActionResult> UpdateUser(int userid, UserDTO updateDto)
+        public async Task<IActionResult> UpdateUser(int userId, UserDTO updateDto)
         {
-            (bool Success, string ErrorMessage) result = await _userService.UpdateUser(userid, updateDto);
+            (bool Success, string? ErrorMessage) result = await _userService.UpdateUser(userId, updateDto);
 
             if (!result.Success)
             {
@@ -58,7 +58,7 @@ namespace TheThanh_WebAPI_Flight.Controllers
         [HttpDelete("{UserID}")]
         public async Task<IActionResult> DeleteUser(int UserID)
         {
-            (bool Success, string ErrorMessage) result = await _userService.DeleteUser(UserID);
+            (bool Success, string? ErrorMessage) result = await _userService.DeleteUser(UserID);
             if (!result.Success)
             {
                 return BadRequest(result.ErrorMessage);
