@@ -1,4 +1,4 @@
-# FlightDocsSystem
+# Hệ thống backend quản lý tài liệu chuyến bay
 
 ## 📌 Giới thiệu
 FlightDocsSystem là một Web API được phát triển bằng **ASP.NET Core 6** nhằm quản lý tài liệu chuyến bay, hỗ trợ việc lưu trữ, truy xuất thông tin trong ngành hàng không.
@@ -10,7 +10,8 @@ FlightDocsSystem là một Web API được phát triển bằng **ASP.NET Core 
 - **AutoMapper** (Chuyển đổi dữ liệu giữa DTO và Model)
 - **JWT Authentication** (Xác thực API)
 - **Swagger UI** (Tài liệu API)
-- **Repository Pattern** (Quản lý dữ liệu)
+- **Repository Pattern** (Quản lý dữ liệu)  
+- **Validation** (Kiểm tra dữ liệu đầu vào sử dụng Fluent Validation)
 
 ## 📚 Cấu trúc thư mục
 ```
@@ -48,7 +49,7 @@ cd Project_WebAPI_FlightDocsSystem
 - Mở **appsettings.json**, chỉnh sửa chuỗi kết nối SQL Server:
 ```json
 "ConnectionStrings": {
-  "DefaultConnection": "Server=YOUR_SERVER;Database=FlightDocsDB;User Id=YOUR_USER;Password=YOUR_PASSWORD;"
+  "MyDB": "Data Source=YOUR_SQLSERVER;Initial Catalog=FlightDocsDB;User=YOUR_USER;Password=YOUR_PASSWORD;"
 }
 ```
 - Mở **Package Manager Console** (Tools > NuGet Package Manager > Package Manager Console) và chạy lệnh sau để tạo cơ sở dữ liệu:
@@ -64,12 +65,8 @@ Add-Migration InitialCreate
 Update-Database
 ```
 
-Ứng dụng sẽ chạy trên **https://localhost:5001** hoặc **http://localhost:5000**.
-
 ## 📚 API Documentation
-Sử dụng **Swagger** để xem tài liệu API:
-- Truy cập: [http://localhost:5000/swagger](http://localhost:5000/swagger)
-
+Sử dụng **Swagger** để xem tài liệu API
 Hoặc sử dụng **Postman** để kiểm thử API
 
 ## 🛠 Đóng góp
